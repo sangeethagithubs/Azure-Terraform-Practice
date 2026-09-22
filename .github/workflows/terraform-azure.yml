@@ -1,0 +1,64 @@
+
+name: Terraform Azure Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Select the Terraform project"
+        required: true
+        type: choice
+        options:
+          - Azure-Load-Balancer
+          - Azure-NSG-Security-Group
+          - Azure-SQL-Database
+          - Azure-Storage-Account
+          - Azure-VM-With-Public-IP
+          - Azure-VM-Without-Public-IP
+          - Azure-VNet
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      ARM_USE_OIDC: true
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: ./${{ inputs.project }}
+        run: |
+          if [ "${{ inputs.project }}" = "Azure-VM-With-Public-IP" ]; then
+            terraform init -backend-config=backend.hcl
+          else
+            terraform init
+          fi
+
+      - name: Terraform Format Check
+        working-directory: ./${{ inputs.project }}
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        working-directory: ./${{ inputs.project }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: ./${{ inputs.project }}
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ./${{ inputs.project }}
+        run: terraform apply -auto-approve tfplan
