@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       terraform_folder:
-        description: 'Select Terraform project'
+        description: 'Azure-Terraform-practice'
         required: true
         type: choice
         options:
