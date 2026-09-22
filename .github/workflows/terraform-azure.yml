@@ -1,149 +1,46 @@
-name: Terraform Azure Deployment
+name: Terraform Deployment
 
 on:
   workflow_dispatch:
-
-permissions:
-  contents: read
-  id-token: write
+    inputs:
+      terraform_folder:
+        description: 'Select Terraform project'
+        required: true
+        type: choice
+        options:
+          - Azure-VNet
+          - Azure-Storage-Account
+          - Azure-NSG-Security-Group
+          - Azure-Load-Balancer
+          - Azure-SQL-Database
+          - Azure-VM-With-Public-IP
+          - Azure-VM-Without-Public-IP
 
 jobs:
   terraform:
-    name: Terraform Deployment
     runs-on: ubuntu-latest
 
-    steps:
+    defaults:
+      run:
+        working-directory: ${{ inputs.terraform_folder }}
 
-      # 1. Checkout GitHub repository
-      - name: Checkout Repository
+    steps:
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Install Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # 3. Azure Login
       - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # -------------------------------------------------
-      # Azure VNet
-      # -------------------------------------------------
-
-      - name: VNet - Terraform Init
-        working-directory: Terraform-Resource-Folder/Azure-VNet
+      - name: Terraform Init
         run: terraform init
 
-      - name: VNet - Terraform Plan
-        working-directory: Terraform-Resource-Folder/Azure-VNet
+      - name: Terraform Plan
         run: terraform plan
 
-      - name: VNet - Terraform Apply
-        working-directory: Terraform-Resource-Folder/Azure-VNet
-        run: terraform apply -auto-approve
-
-
-      # -------------------------------------------------
-      # Azure VM With Public IP
-      # -------------------------------------------------
-
-      - name: VM With Public IP - Terraform Init
-        working-directory: Terraform-Resource-Folder/Azure-VM-With-Public-IP
-        run: terraform init
-
-      - name: VM With Public IP - Terraform Plan
-        working-directory: Terraform-Resource-Folder/Azure-VM-With-Public-IP
-        run: terraform plan
-
-      - name: VM With Public IP - Terraform Apply
-        working-directory: Terraform-Resource-Folder/Azure-VM-With-Public-IP
-        run: terraform apply -auto-approve
-
-
-      # -------------------------------------------------
-      # Azure VM Without Public IP
-      # -------------------------------------------------
-
-      - name: VM Without Public IP - Terraform Init
-        working-directory: Terraform-Resource-Folder/Azure-VM-Without-Public-IP
-        run: terraform init
-
-      - name: VM Without Public IP - Terraform Plan
-        working-directory: Terraform-Resource-Folder/Azure-VM-Without-Public-IP
-        run: terraform plan
-
-      - name: VM Without Public IP - Terraform Apply
-        working-directory: Terraform-Resource-Folder/Azure-VM-Without-Public-IP
-        run: terraform apply -auto-approve
-
-
-      # -------------------------------------------------
-      # Azure Storage Account
-      # -------------------------------------------------
-
-      - name: Storage Account - Terraform Init
-        working-directory: Terraform-Resource-Folder/Azure-Storage-Account
-        run: terraform init
-
-      - name: Storage Account - Terraform Plan
-        working-directory: Terraform-Resource-Folder/Azure-Storage-Account
-        run: terraform plan
-
-      - name: Storage Account - Terraform Apply
-        working-directory: Terraform-Resource-Folder/Azure-Storage-Account
-        run: terraform apply -auto-approve
-
-
-      # -------------------------------------------------
-      # Azure NSG
-      # -------------------------------------------------
-
-      - name: NSG - Terraform Init
-        working-directory: Terraform-Resource-Folder/Azure-NSG-Security-Group
-        run: terraform init
-
-      - name: NSG - Terraform Plan
-        working-directory: Terraform-Resource-Folder/Azure-NSG-Security-Group
-        run: terraform plan
-
-      - name: NSG - Terraform Apply
-        working-directory: Terraform-Resource-Folder/Azure-NSG-Security-Group
-        run: terraform apply -auto-approve
-
-
-      # -------------------------------------------------
-      # Azure Load Balancer
-      # -------------------------------------------------
-
-      - name: Load Balancer - Terraform Init
-        working-directory: Terraform-Resource-Folder/Azure-Load-Balancer
-        run: terraform init
-
-      - name: Load Balancer - Terraform Plan
-        working-directory: Terraform-Resource-Folder/Azure-Load-Balancer
-        run: terraform plan
-
-      - name: Load Balancer - Terraform Apply
-        working-directory: Terraform-Resource-Folder/Azure-Load-Balancer
-        run: terraform apply -auto-approve
-
-
-      # -------------------------------------------------
-      # Azure SQL Database
-      # -------------------------------------------------
-
-      - name: SQL Database - Terraform Init
-        working-directory: Terraform-Resource-Folder/Azure-SQL-Database
-        run: terraform init
-
-      - name: SQL Database - Terraform Plan
-        working-directory: Terraform-Resource-Folder/Azure-SQL-Database
-        run: terraform plan
-
-      - name: SQL Database - Terraform Apply
-        working-directory: Terraform-Resource-Folder/Azure-SQL-Database
+      - name: Terraform Apply
         run: terraform apply -auto-approve
