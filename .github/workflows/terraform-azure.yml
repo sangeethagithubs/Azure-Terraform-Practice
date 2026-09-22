@@ -3,8 +3,8 @@ name: Terraform Deployment
 on:
   workflow_dispatch:
     inputs:
-      terraform_folder:
-        description: "Select Terraform project"
+      Azure_terraform_practice:
+        description: "Azure Terraform practice"
         required: true
         type: choice
         options:
@@ -34,6 +34,7 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
+          auth-type: SERVICE_PRINCIPAL
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
