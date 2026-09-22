@@ -1,11 +1,10 @@
-yaml
 name: Terraform Deployment
 
 on:
   workflow_dispatch:
     inputs:
       terraform_folder:
-        description: 'Azure Terraform practice'
+        description: "Select Terraform project"
         required: true
         type: choice
         options:
@@ -48,4 +47,3 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-```
